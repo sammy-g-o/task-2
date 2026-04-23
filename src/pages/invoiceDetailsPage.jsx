@@ -68,93 +68,111 @@ function InvoiceDetailsPage() {
         setIsEditing(false)
     }
     const items = selectedInvoice.items || []
-    return (<div style={{ position: "relative", height: "100dvh" }}>
-        <Header />
-        <div className="go__back" onClick={handleGoBack}><span>&lt;</span> Go Back</div>
-        {isEditing ? (
-            <Form action="Edit" initialData={selectedInvoice} invoiceId={invoiceId} onSaved={handleSaved} onCancel={handleCancelEdit} />
-        ) : (
-            <>
-                <div className="invoice__details--main">
-                    <div className="invoice__details--status">
-                        <div className="">Status</div>
-                        <div className=""><Status invoice={selectedInvoice} /></div>
+    const isPaid = selectedInvoice.status === 'paid'
+    return (
+        <div className="details__page">
+            <Header />
+            <button type="button" className="go__back" onClick={handleGoBack}>
+                <span aria-hidden="true">&lt;</span> Go Back
+            </button>
+            {isEditing ? (
+                <Form action="Edit" initialData={selectedInvoice} invoiceId={invoiceId} onSaved={handleSaved} onCancel={handleCancelEdit} />
+            ) : (
+                <>
+                    <div className="invoice__details--main">
+                        <div className="invoice__details--status">
+                            <div className="invoice__status-label">Status</div>
+                            <div><Status invoice={selectedInvoice} /></div>
+                            <div className="invoice__details--status-actions">
+                                <button type="button" className="invoice__action edit" onClick={handleEdit} disabled={isPaid}>Edit</button>
+                                <button type="button" className="invoice__action delete" onClick={handleDelete}>Delete</button>
+                                <button type="button" className="invoice__action mark-as-paid" onClick={handleMarkAsPaid} disabled={isPaid}>Mark as Paid</button>
+                            </div>
+                        </div>
+                        <article className="invoice__details--details">
+                            <header className="invoice__id-row">
+                                <h1 className="invoice__id"><span className="hash">#</span>{selectedInvoice.invoiceId}</h1>
+                                <p className="invoice__description">{selectedInvoice.projectDescription}</p>
+                            </header>
+                            <address className="invoice__bill-from">
+                                <p>{selectedInvoice.streetAddress}</p>
+                                <p>{selectedInvoice.city}</p>
+                                <p>{selectedInvoice.postCode}</p>
+                                <p>{selectedInvoice.country}</p>
+                            </address>
+                            <div className="invoice__meta">
+                                <div className="invoice__meta-col">
+                                    <p className="invoice__meta-label">Invoice Date</p>
+                                    <p className="invoice__meta-value">{formatDate(selectedInvoice.invoiceDate)}</p>
+                                    <p className="invoice__meta-label">Payment Due</p>
+                                    <p className="invoice__meta-value">{formatDate(selectedInvoice.dueDate)}</p>
+                                </div>
+                                <div className="invoice__meta-col">
+                                    <p className="invoice__meta-label">Bill To</p>
+                                    <p className="invoice__meta-value">{selectedInvoice.clientName}</p>
+                                    <address>
+                                        <p>{selectedInvoice.clientStreetAddress}</p>
+                                        <p>{selectedInvoice.clientCity}</p>
+                                        <p>{selectedInvoice.clientPostCode}</p>
+                                        <p>{selectedInvoice.clientCountry}</p>
+                                    </address>
+                                </div>
+                                <div className="invoice__meta-col invoice__sent-to">
+                                    <p className="invoice__meta-label">Sent to</p>
+                                    <p className="invoice__meta-value">{selectedInvoice.clientEmail}</p>
+                                </div>
+                            </div>
+                            <div className="invoice__items">
+                                <table className="invoice__items-list">
+                                    <thead className="visually-hidden">
+                                        <tr>
+                                            <th scope="col">Item</th>
+                                            <th scope="col">Quantity</th>
+                                            <th scope="col">Price</th>
+                                            <th scope="col">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {items.map((item, idx) => (
+                                            <tr key={idx} className="invoice__item-row">
+                                                <td className="invoice__item-name">
+                                                    <p className="invoice__item-title">{item.name}</p>
+                                                    <p className="invoice__item-qty invoice__item-qty--mobile">{item.quantity} x {formatCurrency(item.price)}</p>
+                                                </td>
+                                                <td className="invoice__item-cell invoice__item-qty--desktop">{item.quantity}</td>
+                                                <td className="invoice__item-cell invoice__item-qty--desktop">{formatCurrency(item.price)}</td>
+                                                <td className="invoice__item-total">{formatCurrency(Number(item.quantity || 0) * Number(item.price || 0))}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                <div className="invoice__amount-due">
+                                    <p>Amount Due</p>
+                                    <p className="invoice__amount-due-value">{formatCurrency(selectedInvoice.amount)}</p>
+                                </div>
+                            </div>
+                        </article>
                     </div>
-                    <div className="invoice__details--details">
-                        <div className="invoice__id-row">
-                            <h2 className="invoice__id"><span className="hash">#</span>{selectedInvoice.invoiceId}</h2>
-                            <p className="invoice__description">{selectedInvoice.projectDescription}</p>
-                        </div>
-                        <address className="invoice__bill-from">
-                            <p>{selectedInvoice.streetAddress}</p>
-                            <p>{selectedInvoice.city}</p>
-                            <p>{selectedInvoice.postCode}</p>
-                            <p>{selectedInvoice.country}</p>
-                        </address>
-                        <div className="invoice__meta">
-                            <div className="invoice__meta-col">
-                                <p className="invoice__meta-label">Invoice Date</p>
-                                <p className="invoice__meta-value">{formatDate(selectedInvoice.invoiceDate)}</p>
-                                <p className="invoice__meta-label">Payment Due</p>
-                                <p className="invoice__meta-value">{formatDate(selectedInvoice.dueDate)}</p>
-                            </div>
-                            <div className="invoice__meta-col">
-                                <p className="invoice__meta-label">Bill To</p>
-                                <p className="invoice__meta-value">{selectedInvoice.clientName}</p>
-                                <address>
-                                    <p>{selectedInvoice.clientStreetAddress}</p>
-                                    <p>{selectedInvoice.clientCity}</p>
-                                    <p>{selectedInvoice.clientPostCode}</p>
-                                    <p>{selectedInvoice.clientCountry}</p>
-                                </address>
-                            </div>
-                        </div>
-                        <div className="invoice__sent-to">
-                            <p className="invoice__meta-label">Sent to</p>
-                            <p className="invoice__meta-value">{selectedInvoice.clientEmail}</p>
-                        </div>
-                        <div className="invoice__items">
-                            <ul className="invoice__items-list">
-                                {items.map((item, idx) => (
-                                    <li key={idx} className="invoice__item-row">
-                                        <div className="invoice__item-name">
-                                            <p className="invoice__item-title">{item.name}</p>
-                                            <p className="invoice__item-qty">{item.quantity} x {formatCurrency(item.price)}</p>
-                                        </div>
-                                        <p className="invoice__item-total">{formatCurrency(Number(item.quantity || 0) * Number(item.price || 0))}</p>
-                                    </li>
-                                ))}
-                            </ul>
-                            <div className="invoice__amount-due">
-                                <p>Amount Due</p>
-                                <p className="invoice__amount-due-value">{formatCurrency(selectedInvoice.amount)}</p>
-                            </div>
-                        </div>
-                    </div>
+                    <footer className="invoice__footer">
+                        <InvoiceActions>
+                            <button type="button" className="invoice__action edit" onClick={handleEdit} disabled={isPaid}>Edit</button>
+                            <button type="button" className="invoice__action delete" onClick={handleDelete}>Delete</button>
+                            <button type="button" className="invoice__action mark-as-paid" onClick={handleMarkAsPaid} disabled={isPaid}>Mark as Paid</button>
+                        </InvoiceActions>
+                    </footer>
+                </>
+            )}
+            <Modal open={showDeleteModal} onClose={() => setShowDeleteModal(false)} titleId="delete-modal-title">
+                <h2 id="delete-modal-title" className="modal__title">Confirm Deletion</h2>
+                <p className="modal__message">
+                    Are you sure you want to delete invoice #{invoiceId}? This action cannot be undone.
+                </p>
+                <div className="modal__actions">
+                    <button type="button" className="modal__button cancel" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+                    <button type="button" className="modal__button delete" onClick={confirmDelete}>Delete</button>
                 </div>
-                <footer>
-                    <InvoiceActions>
-                        <button className="invoice__action edit" onClick={handleEdit}>Edit</button>
-                        <button className="invoice__action delete" onClick={handleDelete}>Delete</button>
-                        <button className="invoice__action mark-as-paid" onClick={handleMarkAsPaid} disabled={selectedInvoice.status === 'paid'}>Mark as Paid</button>
-                    </InvoiceActions>
-                </footer>
-            </>
-        )}
-        {showDeleteModal && (
-            <div className="modal__overlay" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
-                <div className="modal">
-                    <h2 id="delete-modal-title" className="modal__title">Confirm Deletion</h2>
-                    <p className="modal__message">
-                        Are you sure you want to delete invoice #{invoiceId}? This action cannot be undone.
-                    </p>
-                    <div className="modal__actions">
-                        <button type="button" className="modal__button cancel" onClick={() => setShowDeleteModal(false)}>Cancel</button>
-                        <button type="button" className="modal__button delete" onClick={confirmDelete}>Delete</button>
-                    </div>
-                </div>
-            </div>
-        )}
-    </div>)
+            </Modal>
+        </div>
+    )
 }
 export default InvoiceDetailsPage
