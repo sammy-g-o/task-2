@@ -5,6 +5,7 @@ import Status from "../components/status"
 import Header from "../components/header"
 import InvoiceActions from "../components/invoiceActions"
 import Form from "../components/form"
+import Modal from "../components/modal"
 
 function formatDate(value) {
     if (!value) return ''
@@ -26,7 +27,16 @@ function InvoiceDetailsPage() {
     const [isEditing, setIsEditing] = useState(false)
     const [showDeleteModal, setShowDeleteModal] = useState(false)
     if (!selectedInvoice) {
-        return (<div>not found</div>)
+        return (
+            <>
+                <Header />
+                <main className="not__found">
+                    <h1>Invoice not found</h1>
+                    <p>We couldn't find an invoice with that ID.</p>
+                    <button type="button" className="form__save" onClick={() => navigate('/')}>Back to invoices</button>
+                </main>
+            </>
+        )
     }
     const handleGoBack = function () {
         if (isEditing) {

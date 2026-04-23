@@ -42,17 +42,19 @@ function InvoicePage() {
         <>
             <Header />
             {!showAddNewForm ? <div className="invoice__page--dock">
-                <div className="">
-                    <h2>Invoices</h2>
-                    <p>{visibleInvoices.length} {visibleInvoices.length === 1 ? 'invoice' : 'invoices'}</p>
+                <div className="invoice__page--summary">
+                    <h1>Invoices</h1>
+                    <p aria-live="polite">{visibleInvoices.length} {visibleInvoices.length === 1 ? 'invoice' : 'invoices'}</p>
                 </div>
                 <div className="filter_new">
                     <div className="filter__wrapper" ref={filterRef}>
                         <button type="button" className="filter" onClick={() => setFilterOpen((o) => !o)} aria-haspopup="true" aria-expanded={filterOpen}>
-                            Filter <span className="filter__caret">{filterOpen ? '▴' : '▾'}</span>
+                            <span className="filter__label--mobile">Filter</span>
+                            <span className="filter__label--desktop">Filter by status</span>
+                            <span className="filter__caret" aria-hidden="true">{filterOpen ? '▴' : '▾'}</span>
                         </button>
                         {filterOpen && (
-                            <div className="filter__menu" role="menu">
+                            <div className="filter__menu" role="group" aria-label="Filter invoices by status">
                                 {STATUS_OPTIONS.map((status) => (
                                     <label key={status} className="filter__option">
                                         <input
@@ -66,15 +68,26 @@ function InvoicePage() {
                             </div>
                         )}
                     </div>
-                    <div className="new-invoice" onClick={handleShowAddNewForm}>
-                        <div className="circle"></div>
-                        <p>New</p>
-                    </div>
+                    <button type="button" className="new-invoice" onClick={handleShowAddNewForm}>
+                        <span className="circle" aria-hidden="true">+</span>
+                        <span className="new-invoice__label--mobile">New</span>
+                        <span className="new-invoice__label--desktop">New Invoice</span>
+                    </button>
                 </div>
-            </div> : <div className="go__back" onClick={handleShowAddNewForm}><span>&lt;</span> Go Back</div>}
+            </div> : <button type="button" className="go__back" onClick={handleShowAddNewForm}><span aria-hidden="true">&lt;</span> Go Back</button>}
             <main className="invoice__page--main">
-                {(visibleInvoices.length === 0 && showAddNewForm === false) && <EmptyMessage />}
-                {(visibleInvoices.length > 0 && showAddNewForm === false) && <>{visibleInvoices?.map((invoice) => <InvoiceCard invoice={invoice} key={invoice.invoiceId} />)}</>}
+                {(visibleInvoices.length === 0 && showAddNewForm === false) && (
+                    <EmptyMessage filtered={statusFilter.length > 0} />
+                )}
+                {(visibleInvoices.length > 0 && showAddNewForm === false) && (
+                    <ul className="invoice__list">
+                        {visibleInvoices.map((invoice) => (
+                            <li key={invoice.invoiceId}>
+                                <InvoiceCard invoice={invoice} />
+                            </li>
+                        ))}
+                    </ul>
+                )}
                 {showAddNewForm && <Form action="New invoice" onSaved={handleInvoiceSaved} onCancel={handleShowAddNewForm} />}
             </main>
         </>
